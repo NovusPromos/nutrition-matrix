@@ -59,25 +59,24 @@
         ];
 
         const defaultGroceries = [
-            { id: "g1", name: "Fat-Free Plain Greek Yogurt", unit: "500g tubs", defaultQty: 3 },
-            { id: "g2", name: "Pilchards in Tomato Sauce", unit: "400g tins", defaultQty: 2 },
-            { id: "g3", name: "Eggs (Large)", unit: "Dozen", defaultQty: 2 },
-            { id: "g4", name: "Chicken Breast (Raw)", unit: "kg", defaultQty: 1.5 },
-            { id: "g5", name: "Lean Steak", unit: "kg", defaultQty: 0.5 },
-            { id: "g6", name: "Sasko Brown Bread", unit: "Loaf", defaultQty: 1 },
-            { id: "g7", name: "Lean Ham", unit: "250g pack", defaultQty: 1 },
-            { id: "g8", name: "Tuna in Brine", unit: "170g tins", defaultQty: 2 },
-            { id: "g9", name: "Frozen Mixed Veg", unit: "1kg bag", defaultQty: 1 },
-            { id: "g10", name: "Apples", unit: "Bag", defaultQty: 1 },
-            { id: "g11", name: "Bananas", unit: "Bunch", defaultQty: 1 },
-            { id: "g12", name: "All-Bran Flakes", unit: "Box", defaultQty: 0 },
-            { id: "g13", name: "Rolled Oats", unit: "kg", defaultQty: 0 }
+            { id: "g1", name: "Fat-Free Plain Greek Yogurt", unit: "1kg tubs", defaultQty: 1.5, target: "Target: 1.5kg total per week" },
+            { id: "g2", name: "Pilchards in Tomato Sauce", unit: "400g tins", defaultQty: 2, target: "Target: 2 large tins" },
+            { id: "g3", name: "Eggs (Large)", unit: "Dozen", defaultQty: 2, target: "Target: 2 dozen (24 eggs)" },
+            { id: "g4", name: "Chicken Breast (Raw)", unit: "kg", defaultQty: 1.2, target: "Target: 1.2kg (yields 4x 180g cooked)" },
+            { id: "g5", name: "Lean Steak", unit: "kg", defaultQty: 0.5, target: "Target: 500g (yields 2 portions)" },
+            { id: "g6", name: "Sasko Brown Bread", unit: "Loaf", defaultQty: 1, target: "Target: 1 loaf (keep refrigerated)" },
+            { id: "g7", name: "Lean Ham", unit: "250g pack", defaultQty: 1, target: "Target: 1 pack" },
+            { id: "g8", name: "Tuna in Brine", unit: "170g tins", defaultQty: 1, target: "Target: 1 tin" },
+            { id: "g9", name: "Frozen Mixed Veg", unit: "1kg bag", defaultQty: 1, target: "Target: 1 bag" },
+            { id: "g10", name: "Apples", unit: "Bag", defaultQty: 1, target: "Target: 1 bag" },
+            { id: "g11", name: "Bananas", unit: "Bunch", defaultQty: 1, target: "Target: 1 bunch" },
+            { id: "g12", name: "All-Bran Flakes", unit: "Box", defaultQty: 0, target: "Target: Restock as needed" },
+            { id: "g13", name: "Rolled Oats", unit: "kg", defaultQty: 0, target: "Target: Restock as needed" }
         ];
 
-        const storageKey = 'nutrition_matrix_v1';
+        const storageKey = 'nutrition_matrix_v2';
         let state = JSON.parse(localStorage.getItem(storageKey)) || { tab: 'meals', groceries: {} };
 
-        // Initialize grocery state if empty
         if (Object.keys(state.groceries).length === 0) {
             for (let i = 0; i < defaultGroceries.length; i++) {
                 let item = defaultGroceries[i];
@@ -110,12 +109,12 @@
         }
 
         function shareToWhatsApp() {
-            let text = "Hi! Please can you get these groceries for my meal plan:\\n\\n";
+            let text = "Hi! Please can you get these groceries for my meal plan:\n\n";
             for (let i = 0; i < defaultGroceries.length; i++) {
                 let item = defaultGroceries[i];
                 let itemState = state.groceries[item.id];
                 if (itemState.checked && itemState.qty > 0) {
-                    text += "- " + itemState.qty + "x " + item.unit + " " + item.name + "\\n";
+                    text += "- " + itemState.qty + "x " + item.unit + " " + item.name + "\n";
                 }
             }
             let whatsappUrl = "whatsapp://send?text=" + encodeURIComponent(text);
@@ -172,7 +171,8 @@
                             '</div>' +
                             '<div class="flex flex-col">' +
                             '<span class="text-sm font-semibold ' + checkedClass + '">' + item.name + '</span>' +
-                            '<span class="text-xs text-gray-500">' + item.unit + '</span>' +
+                            '<span class="text-xs text-gray-400">' + item.unit + '</span>' +
+                            '<span class="text-xs text-blue-400 mt-1 font-mono">' + item.target + '</span>' +
                             '</div></div>' +
                             '<div class="w-20 ml-2" onclick="event.stopPropagation()">' +
                             '<input type="number" step="0.5" value="' + itemState.qty + '" oninput="updateGroceryQty(\'' + item.id + '\', this.value)" class="w-full bg-gray-700 text-white text-center rounded p-2 text-lg focus:outline-none focus:ring-2 focus:ring-green-500">' +
