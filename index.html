@@ -57,15 +57,22 @@
         ];
 
         const freeList = [
-            { name: "Green Veggies (Spinach/Broccoli)", qty: "Unlimited" },
+            { name: "Green Veggies (Spinach/Broccoli/Beans)", qty: "Unlimited" },
+            { name: "Salad (Lettuce/Cucumber/Radish/Celery)", qty: "Unlimited" },
+            { name: "Squash (Gem Squash/Zucchini)", qty: "Unlimited" },
             { name: "Cauliflower / Cabbage", qty: "Unlimited" },
             { name: "Brinjal / Eggplant (Dry Roasted)", qty: "Unlimited" },
+            { name: "Flavor Base (Tomato/Onion/Garlic/Peppers)", qty: "Unlimited" },
+            { name: "Mushrooms", qty: "Unlimited" },
+            { name: "Condiments (Mustard/Hot Sauce/Vinegar)", qty: "Unlimited" },
+            { name: "Flavor Hacks (Soy Sauce/Lemon/Lime)", qty: "Unlimited" },
+            { name: "Raw Ginger & Chillies / Fresh Herbs", qty: "Unlimited" },
             { name: "Dill Gherkins / Pickles", qty: "Unlimited" },
-            { name: "Moir's Sugar-Free Jelly", qty: "1 Bowl" },
+            { name: "Moirs Sugar-Free Jelly", qty: "1 Bowl" },
             { name: "Black Coffee / Tea", qty: "Unlimited" }
         ];
 
-        const storageKey = 'modular_ledger_v2';
+        const storageKey = 'modular_ledger_v3';
         
         let state = JSON.parse(localStorage.getItem(storageKey));
         let todayStr = new Date().toDateString();
