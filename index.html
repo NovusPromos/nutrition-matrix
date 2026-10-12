@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Modular Ledger</title>
+    <title>Weekly Ledger</title>
     
     <link rel="icon" type="image/jpeg" href="nutrition-icon.jpg">
     <link rel="apple-touch-icon" href="nutrition-icon.jpg">
@@ -72,13 +72,20 @@
             { name: "Black Coffee / Tea", qty: "Unlimited" }
         ];
 
-        const storageKey = 'modular_ledger_v3';
+        const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        const storageKey = 'modular_ledger_v4';
         
         let state = JSON.parse(localStorage.getItem(storageKey));
-        let todayStr = new Date().toDateString();
 
-        if (!state || state.date !== todayStr) {
-            state = { date: todayStr, log: [], tab: 'protein' };
+        if (!state || !state.week) {
+            state = { 
+                tab: 'planner', 
+                subTab: 'protein',
+                activeDay: 'Monday',
+                week: {
+                    Monday: [], Tuesday: [], Wednesday: [], Thursday: [], Friday: [], Saturday: [], Sunday: []
+                }
+            };
             saveState();
         }
 
@@ -86,112 +93,214 @@
             localStorage.setItem(storageKey, JSON.stringify(state));
         }
 
-        function switchTab(tabName) {
+        function setTab(tabName) {
             state.tab = tabName;
             saveState();
             renderApp();
         }
 
+        function setSubTab(subTabName) {
+            state.subTab = subTabName;
+            saveState();
+            renderApp();
+        }
+
+        function setDay(day) {
+            state.activeDay = day;
+            saveState();
+            renderApp();
+        }
+
         function addBlock(type, name, qty) {
-            state.log.push({ id: Date.now(), type: type, name: name, qty: qty });
+            state.week[state.activeDay].push({ id: Date.now() + Math.random(), type: type, name: name, qty: qty });
             saveState();
             renderApp();
         }
 
         function removeItem(id) {
+            let currentDayLog = state.week[state.activeDay];
             let newLog = [];
-            for(let i=0; i<state.log.length; i++) {
-                if(state.log[i].id !== id) newLog.push(state.log[i]);
+            for(let i=0; i<currentDayLog.length; i++) {
+                if(currentDayLog[i].id !== id) newLog.push(currentDayLog[i]);
             }
-            state.log = newLog;
+            state.week[state.activeDay] = newLog;
             saveState();
             renderApp();
         }
 
-        function resetDay() {
-            if(confirm("Wipe today's ledger?")) {
-                state.log = [];
+        function clearWeek() {
+            if(confirm("Wipe the entire weekly plan?")) {
+                state.week = { Monday: [], Tuesday: [], Wednesday: [], Thursday: [], Friday: [], Saturday: [], Sunday: [] };
                 saveState();
                 renderApp();
             }
         }
 
+        function getAggregatedGroceries() {
+            let list = {};
+            for(let d=0; d<daysOfWeek.length; d++) {
+                let dayLog = state.week[daysOfWeek[d]];
+                for(let i=0; i<dayLog.length; i++) {
+                    let item = dayLog[i];
+                    if(!list[item.name]) {
+                        list[item.name] = { count: 0, qty: item.qty };
+                    }
+                    list[item.name].count++;
+                }
+            }
+            return list;
+        }
+
+        function shareToWhatsApp() {
+            let groceries = getAggregatedGroceries();
+            let keys = Object.keys(groceries);
+            if(keys.length === 0) {
+                alert("Your weekly plan is empty.");
+                return;
+            }
+
+            let text = "Hi! Please can you get these groceries for my weekly meal plan:\n\n";
+            for(let i=0; i<keys.length; i++) {
+                let name = keys[i];
+                let data = groceries[name];
+                text += "- " + data.count + "x " + name + " (" + data.qty + ")\n";
+            }
+            let whatsappUrl = "whatsapp://send?text=" + encodeURIComponent(text);
+            window.location.href = whatsappUrl;
+        }
+
         function renderApp() {
             const app = document.getElementById('app');
-            
-            let pCount = 0;
-            let cCount = 0;
-            for(let i=0; i<state.log.length; i++) {
-                if(state.log[i].type === 'protein') pCount++;
-                if(state.log[i].type === 'carb') cCount++;
-            }
+            let html = '';
 
-            let totalCals = 340 + (pCount * 140) + (cCount * 140);
-            let totalPro = pCount * 26;
+            // TOP NAVIGATION
+            html += '<header class="sticky top-0 bg-gray-900 z-20 border-b border-gray-800 p-4 shadow-md">' +
+                    '<div class="flex justify-between items-center mb-4">' +
+                    '<h1 class="text-xl font-black tracking-tight text-gray-100">WEEKLY LEDGER</h1>' +
+                    '<div class="flex space-x-2">' +
+                    '<button onclick="setTab(\'planner\')" class="px-3 py-1 text-xs font-bold rounded ' + (state.tab === 'planner' ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400') + ' transition-colors">PLANNER</button>' +
+                    '<button onclick="setTab(\'groceries\')" class="px-3 py-1 text-xs font-bold rounded ' + (state.tab === 'groceries' ? 'bg-green-600 text-white' : 'bg-gray-800 text-gray-400') + ' transition-colors">GROCERIES</button>' +
+                    '</div></div>';
 
-            let pColor = pCount === 5 ? 'text-green-400' : (pCount > 5 ? 'text-red-400' : 'text-blue-400');
-            let cColor = cCount === 4 ? 'text-green-400' : (cCount > 4 ? 'text-red-400' : 'text-orange-400');
-            let calColor = totalCals <= 1600 ? 'text-white' : 'text-red-500';
+            if (state.tab === 'planner') {
+                // DAY SELECTOR BAR
+                let daysHtml = '';
+                for(let i=0; i<daysOfWeek.length; i++) {
+                    let d = daysOfWeek[i];
+                    let isAct = state.activeDay === d;
+                    let btnCls = isAct ? 'bg-gray-700 text-white border-blue-500' : 'bg-gray-900 text-gray-500 border-gray-800';
+                    daysHtml += '<button onclick="setDay(\'' + d + '\')" class="px-3 py-2 text-sm font-bold border-b-2 whitespace-nowrap ' + btnCls + '">' + d.substring(0,3).toUpperCase() + '</button>';
+                }
+                html += '<div class="flex overflow-x-auto hide-scroll border-b border-gray-800 mb-4">' + daysHtml + '</div>';
 
-            let html = '<header class="sticky top-0 bg-gray-900 z-20 border-b border-gray-800 p-4 shadow-md">' +
-                       '<div class="flex justify-between items-end mb-4">' +
-                       '<div><h1 class="text-2xl font-black tracking-tight text-gray-100">LEDGER</h1>' +
-                       '<p class="text-xs text-gray-500 font-mono mt-1">TRACE FATS: 340 KCAL BASE</p></div>' +
-                       '<div class="text-right"><div class="text-3xl font-black font-mono ' + calColor + '">' + totalCals + '</div>' +
-                       '<div class="text-xs text-gray-500 font-bold tracking-wider">/ 1600 KCAL</div></div></div>' +
-                       '<div class="grid grid-cols-2 gap-3 mb-4">' +
-                       '<div class="bg-gray-800 rounded p-2 text-center border border-gray-700">' +
-                       '<div class="text-xs text-gray-400 font-bold mb-1">PROTEIN BLOCKS</div>' +
-                       '<div class="text-xl font-mono font-bold ' + pColor + '">' + pCount + ' / 5</div>' +
-                       '<div class="text-xs text-gray-500">(' + totalPro + 'g total)</div></div>' +
-                       '<div class="bg-gray-800 rounded p-2 text-center border border-gray-700">' +
-                       '<div class="text-xs text-gray-400 font-bold mb-1">CARB BLOCKS</div>' +
-                       '<div class="text-xl font-mono font-bold ' + cColor + '">' + cCount + ' / 4</div>' +
-                       '<div class="text-xs text-gray-500">(Max Limit)</div></div></div>' +
-                       '<div class="flex space-x-2">' +
-                       '<button onclick="switchTab(\'protein\')" class="flex-1 py-2 text-xs font-bold rounded ' + (state.tab === 'protein' ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400') + ' transition-colors">PROTEIN</button>' +
-                       '<button onclick="switchTab(\'carb\')" class="flex-1 py-2 text-xs font-bold rounded ' + (state.tab === 'carb' ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-400') + ' transition-colors">CARBS</button>' +
-                       '<button onclick="switchTab(\'free\')" class="flex-1 py-2 text-xs font-bold rounded ' + (state.tab === 'free' ? 'bg-green-600 text-white' : 'bg-gray-800 text-gray-400') + ' transition-colors">FREE BULK</button>' +
-                       '</div></header>';
+                // DAY MATH CALCULATIONS
+                let currentDayLog = state.week[state.activeDay];
+                let pCount = 0; let cCount = 0;
+                for(let i=0; i<currentDayLog.length; i++) {
+                    if(currentDayLog[i].type === 'protein') pCount++;
+                    if(currentDayLog[i].type === 'carb') cCount++;
+                }
 
-            html += '<main class="p-4 space-y-6">';
+                let totalCals = 340 + (pCount * 140) + (cCount * 140);
+                let totalPro = pCount * 26;
 
-            let activeList = state.tab === 'protein' ? proteins : (state.tab === 'carb' ? carbs : freeList);
-            let addColor = state.tab === 'protein' ? 'bg-blue-600 hover:bg-blue-500' : (state.tab === 'carb' ? 'bg-orange-600 hover:bg-orange-500' : 'bg-green-600 hover:bg-green-500');
+                let pColor = pCount === 5 ? 'text-green-400' : (pCount > 5 ? 'text-red-400' : 'text-blue-400');
+                let cColor = cCount === 4 ? 'text-green-400' : (cCount > 4 ? 'text-red-400' : 'text-orange-400');
+                let calColor = totalCals <= 1600 ? 'text-white' : 'text-red-500';
 
-            html += '<div class="grid grid-cols-1 gap-2">';
-            for(let i=0; i<activeList.length; i++) {
-                let item = activeList[i];
-                html += '<button onclick="addBlock(\'' + state.tab + '\', \'' + item.name + '\', \'' + item.qty + '\')" class="flex justify-between items-center bg-gray-800 p-3 rounded border border-gray-700 active:bg-gray-700 transition-colors text-left">' +
-                        '<div class="flex flex-col"><span class="text-sm font-bold text-gray-100">' + item.name + '</span>' +
-                        '<span class="text-xs text-gray-400 mt-1">' + item.qty + '</span></div>' +
-                        '<div class="' + addColor + ' text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-lg">+</div>' +
-                        '</button>';
-            }
-            html += '</div>';
+                html += '<div class="flex justify-between items-end mb-4">' +
+                        '<div><p class="text-xs text-gray-500 font-mono">TRACE FATS: 340 KCAL BASE</p></div>' +
+                        '<div class="text-right"><div class="text-3xl font-black font-mono ' + calColor + '">' + totalCals + '</div>' +
+                        '<div class="text-xs text-gray-500 font-bold tracking-wider">/ 1600 KCAL</div></div></div>' +
+                        '<div class="grid grid-cols-2 gap-3 mb-4">' +
+                        '<div class="bg-gray-800 rounded p-2 text-center border border-gray-700">' +
+                        '<div class="text-xs text-gray-400 font-bold mb-1">PROTEIN BLOCKS</div>' +
+                        '<div class="text-xl font-mono font-bold ' + pColor + '">' + pCount + ' / 5</div>' +
+                        '<div class="text-xs text-gray-500">(' + totalPro + 'g total)</div></div>' +
+                        '<div class="bg-gray-800 rounded p-2 text-center border border-gray-700">' +
+                        '<div class="text-xs text-gray-400 font-bold mb-1">CARB BLOCKS</div>' +
+                        '<div class="text-xl font-mono font-bold ' + cColor + '">' + cCount + ' / 4</div>' +
+                        '<div class="text-xs text-gray-500">(Max Limit)</div></div></div>' +
+                        '<div class="flex space-x-2">' +
+                        '<button onclick="setSubTab(\'protein\')" class="flex-1 py-2 text-[10px] font-bold rounded ' + (state.subTab === 'protein' ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400') + ' transition-colors">PROTEIN</button>' +
+                        '<button onclick="setSubTab(\'carb\')" class="flex-1 py-2 text-[10px] font-bold rounded ' + (state.subTab === 'carb' ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-400') + ' transition-colors">CARBS</button>' +
+                        '<button onclick="setSubTab(\'free\')" class="flex-1 py-2 text-[10px] font-bold rounded ' + (state.subTab === 'free' ? 'bg-green-600 text-white' : 'bg-gray-800 text-gray-400') + ' transition-colors">FREE BULK</button>' +
+                        '</div></header>';
 
-            html += '<div class="mt-8 border-t border-gray-800 pt-6"><h2 class="text-sm font-bold text-gray-400 tracking-wider mb-4">DAILY LOG</h2>';
-            
-            if(state.log.length === 0) {
-                html += '<p class="text-sm text-gray-600 italic">No blocks logged today.</p>';
-            } else {
-                html += '<div class="space-y-2">';
-                for(let i=state.log.length-1; i>=0; i--) {
-                    let logItem = state.log[i];
-                    let badgeColor = logItem.type === 'protein' ? 'bg-blue-900 text-blue-300' : (logItem.type === 'carb' ? 'bg-orange-900 text-orange-300' : 'bg-green-900 text-green-300');
-                    
-                    html += '<div class="flex justify-between items-center bg-gray-900 p-3 rounded border border-gray-800">' +
-                            '<div class="flex items-center space-x-3">' +
-                            '<span class="text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider ' + badgeColor + '">' + logItem.type + '</span>' +
-                            '<span class="text-sm text-gray-200">' + logItem.name + '</span></div>' +
-                            '<button onclick="removeItem(' + logItem.id + ')" class="text-gray-600 hover:text-red-500 font-bold px-2 text-lg">&times;</button>' +
-                            '</div>';
+                html += '<main class="p-4 space-y-6">';
+
+                // MENU LIST
+                let activeList = state.subTab === 'protein' ? proteins : (state.subTab === 'carb' ? carbs : freeList);
+                let addColor = state.subTab === 'protein' ? 'bg-blue-600 hover:bg-blue-500' : (state.subTab === 'carb' ? 'bg-orange-600 hover:bg-orange-500' : 'bg-green-600 hover:bg-green-500');
+
+                html += '<div class="grid grid-cols-1 gap-2">';
+                for(let i=0; i<activeList.length; i++) {
+                    let item = activeList[i];
+                    html += '<button onclick="addBlock(\'' + state.subTab + '\', \'' + item.name + '\', \'' + item.qty + '\')" class="flex justify-between items-center bg-gray-800 p-3 rounded border border-gray-700 active:bg-gray-700 transition-colors text-left">' +
+                            '<div class="flex flex-col"><span class="text-sm font-bold text-gray-100">' + item.name + '</span>' +
+                            '<span class="text-xs text-gray-400 mt-1">' + item.qty + '</span></div>' +
+                            '<div class="' + addColor + ' text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-lg">+</div>' +
+                            '</button>';
                 }
                 html += '</div>';
-            }
 
-            html += '<button onclick="resetDay()" class="w-full mt-6 bg-gray-800 border border-red-900 text-red-500 font-bold py-3 px-4 rounded transition-colors">RESET LEDGER</button>';
-            html += '</div></main>';
+                // LOG FOR ACTIVE DAY
+                html += '<div class="mt-8 border-t border-gray-800 pt-6"><h2 class="text-sm font-bold text-gray-400 tracking-wider mb-4">' + state.activeDay.toUpperCase() + ' LOG</h2>';
+                
+                if(currentDayLog.length === 0) {
+                    html += '<p class="text-sm text-gray-600 italic">No blocks planned for ' + state.activeDay + '.</p>';
+                } else {
+                    html += '<div class="space-y-2">';
+                    for(let i=currentDayLog.length-1; i>=0; i--) {
+                        let logItem = currentDayLog[i];
+                        let badgeColor = logItem.type === 'protein' ? 'bg-blue-900 text-blue-300' : (logItem.type === 'carb' ? 'bg-orange-900 text-orange-300' : 'bg-green-900 text-green-300');
+                        
+                        html += '<div class="flex justify-between items-center bg-gray-900 p-3 rounded border border-gray-800">' +
+                                '<div class="flex items-center space-x-3">' +
+                                '<span class="text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider ' + badgeColor + '">' + logItem.type + '</span>' +
+                                '<span class="text-sm text-gray-200">' + logItem.name + '</span></div>' +
+                                '<button onclick="removeItem(' + logItem.id + ')" class="text-gray-600 hover:text-red-500 font-bold px-2 text-lg">&times;</button>' +
+                                '</div>';
+                    }
+                    html += '</div>';
+                }
+                html += '</div></main>';
+
+            } else {
+                // GROCERIES TAB
+                html += '</header><main class="p-4 space-y-6">';
+                html += '<h2 class="text-sm font-bold text-gray-400 tracking-wider mb-4">AGGREGATED WEEKLY REQUIREMENTS</h2>';
+                
+                let groceries = getAggregatedGroceries();
+                let keys = Object.keys(groceries);
+
+                if(keys.length === 0) {
+                    html += '<p class="text-sm text-gray-600 italic">Your weekly planner is empty. Add blocks to generate a list.</p>';
+                } else {
+                    html += '<div class="space-y-2 mb-20">';
+                    for(let i=0; i<keys.length; i++) {
+                        let name = keys[i];
+                        let data = groceries[name];
+                        html += '<div class="flex justify-between items-center bg-gray-800 p-3 rounded border border-gray-700">' +
+                                '<div class="flex flex-col">' +
+                                '<span class="text-sm font-bold text-gray-100">' + name + '</span>' +
+                                '<span class="text-xs text-gray-400 mt-1">' + data.qty + ' per unit</span></div>' +
+                                '<div class="text-xl font-black text-green-400 font-mono">x' + data.count + '</div>' +
+                                '</div>';
+                    }
+                    html += '</div>';
+
+                    // WHATSAPP BUTTON FIXED TO BOTTOM
+                    html += '<div class="fixed bottom-0 left-0 right-0 p-4 bg-gray-900 border-t border-gray-800 z-30">' +
+                            '<button onclick="shareToWhatsApp()" class="w-full max-w-md mx-auto block bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-4 rounded shadow-lg transition-colors">' +
+                            'Send List via WhatsApp' +
+                            '</button></div>';
+                }
+                
+                html += '<div class="pt-8 border-t border-gray-800 mt-8">' +
+                        '<button onclick="clearWeek()" class="w-full bg-gray-900 border border-red-900 text-red-500 font-bold py-3 px-4 rounded transition-colors">WIPE ENTIRE WEEK</button>' +
+                        '</div></main>';
+            }
 
             app.innerHTML = html;
         }
