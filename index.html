@@ -3,93 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nutrition</title>
+    <title>Modular Ledger</title>
     
-    <!-- PWA Icon & App Metadata -->
     <link rel="icon" type="image/jpeg" href="nutrition-icon.jpg">
     <link rel="apple-touch-icon" href="nutrition-icon.jpg">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Nutrition">
+    <meta name="apple-mobile-web-app-title" content="Ledger">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { -webkit-tap-highlight-color: transparent; }
-        input[type="number"] { -moz-appearance: textfield; }
-        input[type="number"]::-webkit-outer-spin-button, 
-        input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-100 font-sans antialiased pb-24">
-    <div id="app" class="max-w-md mx-auto p-4"></div>
+    <div id="app" class="max-w-md mx-auto"></div>
 
     <script>
-        const mealPlan = [
-            { day: "Monday", meals: [
-                { name: "Breakfast", detail: "40g All-Bran, 250g Fat-Free Greek Yogurt, Sweetener.", macros: "280 kcal | 30g P" },
-                { name: "Lunch", detail: "2 Slices Sasko Brown Bread, 200g Pilchards in Tomato Sauce.", macros: "330 kcal | 38g P" },
-                { name: "Pre-Gym", detail: "2 Boiled Eggs, 1 Banana.", macros: "240 kcal | 12g P" },
-                { name: "Supper", detail: "180g Chicken Breast (air-fried), 125g Frozen Veg, 100g cooked Macaroni.", macros: "450 kcal | 55g P" }
-            ]},
-            { day: "Tuesday", meals: [
-                { name: "Breakfast", detail: "3 Eggs (1 whole, 2 whites) scrambled, 1 Apple.", macros: "200 kcal | 18g P" },
-                { name: "Lunch", detail: "2 Slices Sasko Brown Bread, 1 Tin (170g) Tuna in brine.", macros: "250 kcal | 34g P" },
-                { name: "Pre-Gym", detail: "250g Fat-Free Greek Yogurt, 1/2 Banana.", macros: "190 kcal | 25g P" },
-                { name: "Supper", detail: "150g Lean Steak, 125g Frozen Veg, 100g cooked Rice.", macros: "480 kcal | 45g P" }
-            ]},
-            { day: "Wednesday", meals: [
-                { name: "Breakfast", detail: "40g Oats (cooked in water), 2 Boiled Eggs.", macros: "290 kcal | 17g P" },
-                { name: "Lunch", detail: "2 Slices Sasko Brown Bread, 200g Pilchards in Tomato Sauce.", macros: "330 kcal | 38g P" },
-                { name: "Pre-Gym", detail: "250g Fat-Free Greek Yogurt.", macros: "140 kcal | 25g P" },
-                { name: "Supper", detail: "180g Chicken Breast, 125g Frozen Veg, 100g cooked Potatoes.", macros: "420 kcal | 55g P" }
-            ]},
-            { day: "Thursday", meals: [
-                { name: "Breakfast", detail: "40g All-Bran, 250g Fat-Free Greek Yogurt.", macros: "280 kcal | 30g P" },
-                { name: "Lunch", detail: "2 Slices Sasko Brown Bread, 120g Lean Ham, Mustard.", macros: "260 kcal | 25g P" },
-                { name: "Pre-Gym", detail: "2 Boiled Eggs, 1 Apple.", macros: "200 kcal | 12g P" },
-                { name: "Supper", detail: "180g Chicken Breast, 125g Frozen Veg, 100g cooked Pap.", macros: "420 kcal | 55g P" }
-            ]},
-            { day: "Friday", meals: [
-                { name: "Breakfast", detail: "250g Fat-Free Greek Yogurt, 1 Apple.", macros: "200 kcal | 25g P" },
-                { name: "Lunch", detail: "2 Slices Sasko Brown Bread, 200g Pilchards in Tomato Sauce.", macros: "330 kcal | 38g P" },
-                { name: "Snack", detail: "2 Boiled Eggs.", macros: "140 kcal | 12g P" },
-                { name: "Supper", detail: "200g Lean Steak, Large side salad (zero oil).", macros: "450 kcal | 50g P" }
-            ]},
-            { day: "Saturday", meals: [
-                { name: "Cheat Day", detail: "Eat desired foods. Strictly cap total intake at 2,200 calories to preserve weekly deficit.", macros: "Max 2,200 kcal" }
-            ]},
-            { day: "Sunday", meals: [
-                { name: "Breakfast", detail: "3 Eggs (1 whole, 2 whites) scrambled, 1/2 Banana.", macros: "200 kcal | 18g P" },
-                { name: "Lunch", detail: "2 Slices Sasko Brown Bread, 200g Pilchards in Tomato Sauce.", macros: "330 kcal | 38g P" },
-                { name: "Snack", detail: "250g Fat-Free Greek Yogurt.", macros: "140 kcal | 25g P" },
-                { name: "Supper", detail: "180g Chicken Breast, 125g Frozen Veg, 100g cooked Rice.", macros: "400 kcal | 55g P" }
-            ]}
+        const proteins = [
+            { name: "Pork Fillet (Raw)", qty: "125g" },
+            { name: "Ostrich Mince/Steak", qty: "120g" },
+            { name: "Hake Fillets", qty: "150g" },
+            { name: "Extra Lean Beef Mince 5%", qty: "125g" },
+            { name: "Chicken Breast (Raw)", qty: "115g" },
+            { name: "Lean Beef Steak (Raw)", qty: "110g" },
+            { name: "Pilchards in Tomato Sauce", qty: "150g" },
+            { name: "Tuna in Brine (Drained)", qty: "170g tin" },
+            { name: "Chicken Livers (Raw)", qty: "150g" },
+            { name: "Fat-Free Cottage Cheese", qty: "250g tub" },
+            { name: "Eggs (1 Whole + 4 Whites)", qty: "5 total eggs" }
         ];
 
-        const defaultGroceries = [
-            { id: "g1", name: "Fat-Free Plain Greek Yogurt", unit: "1kg tubs", defaultQty: 1.5, target: "Target: 1.5kg total per week" },
-            { id: "g2", name: "Pilchards in Tomato Sauce", unit: "400g tins", defaultQty: 2, target: "Target: 2 large tins" },
-            { id: "g3", name: "Eggs (Large)", unit: "Dozen", defaultQty: 2, target: "Target: 2 dozen (24 eggs)" },
-            { id: "g4", name: "Chicken Breast (Raw)", unit: "kg", defaultQty: 1.2, target: "Target: 1.2kg (yields 4x 180g cooked)" },
-            { id: "g5", name: "Lean Steak", unit: "kg", defaultQty: 0.5, target: "Target: 500g (yields 2 portions)" },
-            { id: "g6", name: "Sasko Brown Bread", unit: "Loaf", defaultQty: 1, target: "Target: 1 loaf (keep refrigerated)" },
-            { id: "g7", name: "Lean Ham", unit: "250g pack", defaultQty: 1, target: "Target: 1 pack" },
-            { id: "g8", name: "Tuna in Brine", unit: "170g tins", defaultQty: 1, target: "Target: 1 tin" },
-            { id: "g9", name: "Frozen Mixed Veg", unit: "1kg bag", defaultQty: 1, target: "Target: 1 bag" },
-            { id: "g10", name: "Apples", unit: "Bag", defaultQty: 1, target: "Target: 1 bag" },
-            { id: "g11", name: "Bananas", unit: "Bunch", defaultQty: 1, target: "Target: 1 bunch" },
-            { id: "g12", name: "All-Bran Flakes", unit: "Box", defaultQty: 0, target: "Target: Restock as needed" },
-            { id: "g13", name: "Rolled Oats", unit: "kg", defaultQty: 0, target: "Target: Restock as needed" }
+        const carbs = [
+            { name: "Jungle Oats (Dry)", qty: "40g" },
+            { name: "Rice: White/Brown (Dry)", qty: "40g" },
+            { name: "Maize Meal / Pap (Dry)", qty: "40g" },
+            { name: "Macaroni / Pasta (Dry)", qty: "40g" },
+            { name: "Sasko Brown Bread", qty: "2 Slices" },
+            { name: "Potatoes / Sweet Potatoes", qty: "150g" },
+            { name: "All-Bran Flakes", qty: "40g" },
+            { name: "Samp (Dry)", qty: "40g" },
+            { name: "Plain Rice Cakes", qty: "4 Large" },
+            { name: "Wholewheat Wrap", qty: "1 Standard" },
+            { name: "Couscous (Dry)", qty: "40g" },
+            { name: "Corn on the Cob", qty: "1 Large" },
+            { name: "Apple", qty: "1 Large" },
+            { name: "Banana", qty: "1 Medium" },
+            { name: "Strawberries", qty: "300g" },
+            { name: "Pineapple / Watermelon", qty: "250g" },
+            { name: "Naartjies", qty: "2 Medium" }
         ];
 
-        const storageKey = 'nutrition_matrix_v2';
-        let state = JSON.parse(localStorage.getItem(storageKey)) || { tab: 'meals', groceries: {} };
+        const freeList = [
+            { name: "Green Veggies (Spinach/Broccoli)", qty: "Unlimited" },
+            { name: "Cauliflower / Cabbage", qty: "Unlimited" },
+            { name: "Brinjal / Eggplant (Dry Roasted)", qty: "Unlimited" },
+            { name: "Dill Gherkins / Pickles", qty: "Unlimited" },
+            { name: "Moir's Sugar-Free Jelly", qty: "1 Bowl" },
+            { name: "Black Coffee / Tea", qty: "Unlimited" }
+        ];
 
-        if (Object.keys(state.groceries).length === 0) {
-            for (let i = 0; i < defaultGroceries.length; i++) {
-                let item = defaultGroceries[i];
-                state.groceries[item.id] = { qty: item.defaultQty, checked: true };
-            }
+        const storageKey = 'modular_ledger_v1';
+        
+        let state = JSON.parse(localStorage.getItem(storageKey));
+        let todayStr = new Date().toDateString();
+
+        if (!state || state.date !== todayStr) {
+            state = { date: todayStr, log: [], tab: 'protein' };
             saveState();
         }
 
@@ -103,98 +85,107 @@
             renderApp();
         }
 
-        function updateGroceryQty(id, value) {
-            let num = parseFloat(value);
-            if (isNaN(num) || num < 0) num = 0;
-            state.groceries[id].qty = num;
-            saveState();
-        }
-
-        function toggleGroceryCheck(id) {
-            state.groceries[id].checked = !state.groceries[id].checked;
+        function addBlock(type, name, qty) {
+            state.log.push({ id: Date.now(), type: type, name: name, qty: qty });
             saveState();
             renderApp();
         }
 
-        function shareToWhatsApp() {
-            let text = "Hi! Please can you get these groceries for my meal plan:\n\n";
-            for (let i = 0; i < defaultGroceries.length; i++) {
-                let item = defaultGroceries[i];
-                let itemState = state.groceries[item.id];
-                if (itemState.checked && itemState.qty > 0) {
-                    text += "- " + itemState.qty + "x " + item.unit + " " + item.name + "\n";
-                }
+        function removeItem(id) {
+            let newLog = [];
+            for(let i=0; i<state.log.length; i++) {
+                if(state.log[i].id !== id) newLog.push(state.log[i]);
             }
-            let whatsappUrl = "whatsapp://send?text=" + encodeURIComponent(text);
-            window.location.href = whatsappUrl;
+            state.log = newLog;
+            saveState();
+            renderApp();
+        }
+
+        function resetDay() {
+            if(confirm("Wipe today's ledger?")) {
+                state.log = [];
+                saveState();
+                renderApp();
+            }
         }
 
         function renderApp() {
             const app = document.getElementById('app');
             
-            let html = '<header class="mb-6 sticky top-0 bg-gray-900 py-4 z-10 border-b border-gray-800">' +
-                       '<h1 class="text-xl font-bold text-green-400 mb-4 tracking-tight">NUTRITION MATRIX</h1>' +
-                       '<div class="flex space-x-2">' +
-                       '<button onclick="switchTab(\'meals\')" class="flex-1 py-2 text-sm font-semibold rounded ' + (state.tab === 'meals' ? 'bg-green-600 text-white' : 'bg-gray-800 text-gray-400') + ' transition-colors">Meal Plan</button>' +
-                       '<button onclick="switchTab(\'groceries\')" class="flex-1 py-2 text-sm font-semibold rounded ' + (state.tab === 'groceries' ? 'bg-green-600 text-white' : 'bg-gray-800 text-gray-400') + ' transition-colors">Grocery List</button>' +
-                       '</div></header>';
-
-            html += '<main class="space-y-6">';
-
-            if (state.tab === 'meals') {
-                for (let i = 0; i < mealPlan.length; i++) {
-                    let day = mealPlan[i];
-                    html += '<div class="bg-gray-800 rounded-lg p-4 border border-gray-700 shadow-sm">' +
-                            '<h2 class="font-bold text-lg text-gray-100 mb-3 border-b border-gray-700 pb-2">' + day.day + '</h2>' +
-                            '<div class="space-y-3">';
-                    
-                    for (let j = 0; j < day.meals.length; j++) {
-                        let meal = day.meals[j];
-                        html += '<div class="bg-gray-900 p-3 rounded">' +
-                                '<div class="flex justify-between items-center mb-1">' +
-                                '<span class="text-green-400 font-semibold text-sm">' + meal.name + '</span>' +
-                                '<span class="text-gray-500 text-xs font-mono">' + meal.macros + '</span>' +
-                                '</div>' +
-                                '<p class="text-gray-300 text-sm">' + meal.detail + '</p>' +
-                                '</div>';
-                    }
-                    html += '</div></div>';
-                }
-            } else {
-                html += '<div class="bg-gray-800 rounded-lg p-4 border border-gray-700 shadow-sm mb-20">' +
-                        '<div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-2">' +
-                        '<h2 class="font-bold text-lg text-gray-100">Procurement List</h2>' +
-                        '</div><div class="space-y-2">';
-
-                for (let i = 0; i < defaultGroceries.length; i++) {
-                    let item = defaultGroceries[i];
-                    let itemState = state.groceries[item.id];
-                    let checkedClass = itemState.checked ? 'text-gray-100' : 'text-gray-600 line-through';
-                    let bgClass = itemState.checked ? 'bg-gray-900 border-gray-700' : 'bg-gray-900 border-gray-800 opacity-50';
-
-                    html += '<div class="flex items-center justify-between p-3 rounded border ' + bgClass + ' transition-opacity">' +
-                            '<div class="flex items-center space-x-3 flex-1" onclick="toggleGroceryCheck(\'' + item.id + '\')">' +
-                            '<div class="w-6 h-6 rounded border flex items-center justify-center ' + (itemState.checked ? 'bg-green-600 border-green-500' : 'border-gray-600') + '">' +
-                            (itemState.checked ? '<span class="text-white text-xs">&#10003;</span>' : '') +
-                            '</div>' +
-                            '<div class="flex flex-col">' +
-                            '<span class="text-sm font-semibold ' + checkedClass + '">' + item.name + '</span>' +
-                            '<span class="text-xs text-gray-400">' + item.unit + '</span>' +
-                            '<span class="text-xs text-blue-400 mt-1 font-mono">' + item.target + '</span>' +
-                            '</div></div>' +
-                            '<div class="w-20 ml-2" onclick="event.stopPropagation()">' +
-                            '<input type="number" step="0.5" value="' + itemState.qty + '" oninput="updateGroceryQty(\'' + item.id + '\', this.value)" class="w-full bg-gray-700 text-white text-center rounded p-2 text-lg focus:outline-none focus:ring-2 focus:ring-green-500">' +
-                            '</div></div>';
-                }
-                
-                html += '</div></div>' +
-                        '<div class="fixed bottom-0 left-0 right-0 p-4 bg-gray-900 border-t border-gray-800">' +
-                        '<button onclick="shareToWhatsApp()" class="w-full max-w-md mx-auto block bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-4 rounded shadow-lg transition-colors">' +
-                        'Send List via WhatsApp' +
-                        '</button></div>';
+            let pCount = 0;
+            let cCount = 0;
+            for(let i=0; i<state.log.length; i++) {
+                if(state.log[i].type === 'protein') pCount++;
+                if(state.log[i].type === 'carb') cCount++;
             }
 
-            html += '</main>';
+            let totalCals = 340 + (pCount * 140) + (cCount * 140);
+            let totalPro = pCount * 26;
+
+            let pColor = pCount === 5 ? 'text-green-400' : (pCount > 5 ? 'text-red-400' : 'text-blue-400');
+            let cColor = cCount === 4 ? 'text-green-400' : (cCount > 4 ? 'text-red-400' : 'text-orange-400');
+            let calColor = totalCals <= 1600 ? 'text-white' : 'text-red-500';
+
+            let html = '<header class="sticky top-0 bg-gray-900 z-20 border-b border-gray-800 p-4 shadow-md">' +
+                       '<div class="flex justify-between items-end mb-4">' +
+                       '<div><h1 class="text-2xl font-black tracking-tight text-gray-100">LEDGER</h1>' +
+                       '<p class="text-xs text-gray-500 font-mono mt-1">TRACE FATS: 340 KCAL BASE</p></div>' +
+                       '<div class="text-right"><div class="text-3xl font-black font-mono ' + calColor + '">' + totalCals + '</div>' +
+                       '<div class="text-xs text-gray-500 font-bold tracking-wider">/ 1600 KCAL</div></div></div>' +
+                       '<div class="grid grid-cols-2 gap-3 mb-4">' +
+                       '<div class="bg-gray-800 rounded p-2 text-center border border-gray-700">' +
+                       '<div class="text-xs text-gray-400 font-bold mb-1">PROTEIN BLOCKS</div>' +
+                       '<div class="text-xl font-mono font-bold ' + pColor + '">' + pCount + ' / 5</div>' +
+                       '<div class="text-xs text-gray-500">(' + totalPro + 'g total)</div></div>' +
+                       '<div class="bg-gray-800 rounded p-2 text-center border border-gray-700">' +
+                       '<div class="text-xs text-gray-400 font-bold mb-1">CARB BLOCKS</div>' +
+                       '<div class="text-xl font-mono font-bold ' + cColor + '">' + cCount + ' / 4</div>' +
+                       '<div class="text-xs text-gray-500">(Max Limit)</div></div></div>' +
+                       '<div class="flex space-x-2">' +
+                       '<button onclick="switchTab(\'protein\')" class="flex-1 py-2 text-xs font-bold rounded ' + (state.tab === 'protein' ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400') + ' transition-colors">PROTEIN</button>' +
+                       '<button onclick="switchTab(\'carb\')" class="flex-1 py-2 text-xs font-bold rounded ' + (state.tab === 'carb' ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-400') + ' transition-colors">CARBS</button>' +
+                       '<button onclick="switchTab(\'free\')" class="flex-1 py-2 text-xs font-bold rounded ' + (state.tab === 'free' ? 'bg-green-600 text-white' : 'bg-gray-800 text-gray-400') + ' transition-colors">FREE BULK</button>' +
+                       '</div></header>';
+
+            html += '<main class="p-4 space-y-6">';
+
+            let activeList = state.tab === 'protein' ? proteins : (state.tab === 'carb' ? carbs : freeList);
+            let addColor = state.tab === 'protein' ? 'bg-blue-600 hover:bg-blue-500' : (state.tab === 'carb' ? 'bg-orange-600 hover:bg-orange-500' : 'bg-green-600 hover:bg-green-500');
+
+            html += '<div class="grid grid-cols-1 gap-2">';
+            for(let i=0; i<activeList.length; i++) {
+                let item = activeList[i];
+                html += '<button onclick="addBlock(\'' + state.tab + '\', \'' + item.name + '\', \'' + item.qty + '\')" class="flex justify-between items-center bg-gray-800 p-3 rounded border border-gray-700 active:bg-gray-700 transition-colors text-left">' +
+                        '<div class="flex flex-col"><span class="text-sm font-bold text-gray-100">' + item.name + '</span>' +
+                        '<span class="text-xs text-gray-400 mt-1">' + item.qty + '</span></div>' +
+                        '<div class="' + addColor + ' text-white rounded-full w-8 h-8 flex items-center justify-center font-bold text-lg">+</div>' +
+                        '</button>';
+            }
+            html += '</div>';
+
+            html += '<div class="mt-8 border-t border-gray-800 pt-6"><h2 class="text-sm font-bold text-gray-400 tracking-wider mb-4">TODAY\\'S LOG</h2>';
+            
+            if(state.log.length === 0) {
+                html += '<p class="text-sm text-gray-600 italic">No blocks logged today.</p>';
+            } else {
+                html += '<div class="space-y-2">';
+                for(let i=state.log.length-1; i>=0; i--) {
+                    let logItem = state.log[i];
+                    let badgeColor = logItem.type === 'protein' ? 'bg-blue-900 text-blue-300' : (logItem.type === 'carb' ? 'bg-orange-900 text-orange-300' : 'bg-green-900 text-green-300');
+                    
+                    html += '<div class="flex justify-between items-center bg-gray-900 p-3 rounded border border-gray-800">' +
+                            '<div class="flex items-center space-x-3">' +
+                            '<span class="text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider ' + badgeColor + '">' + logItem.type + '</span>' +
+                            '<span class="text-sm text-gray-200">' + logItem.name + '</span></div>' +
+                            '<button onclick="removeItem(' + logItem.id + ')" class="text-gray-600 hover:text-red-500 font-bold px-2 text-lg">&times;</button>' +
+                            '</div>';
+                }
+                html += '</div>';
+            }
+
+            html += '<button onclick="resetDay()" class="w-full mt-6 bg-gray-800 border border-red-900 text-red-500 font-bold py-3 px-4 rounded transition-colors">RESET LEDGER</button>';
+            html += '</div></main>';
+
             app.innerHTML = html;
         }
 
