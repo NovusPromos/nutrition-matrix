@@ -65,7 +65,7 @@
             { name: "Black Coffee / Tea", qty: "Unlimited" }
         ];
 
-        const storageKey = 'modular_ledger_v1';
+        const storageKey = 'modular_ledger_v2';
         
         let state = JSON.parse(localStorage.getItem(storageKey));
         let todayStr = new Date().toDateString();
@@ -163,7 +163,7 @@
             }
             html += '</div>';
 
-            html += '<div class="mt-8 border-t border-gray-800 pt-6"><h2 class="text-sm font-bold text-gray-400 tracking-wider mb-4">TODAY\\'S LOG</h2>';
+            html += '<div class="mt-8 border-t border-gray-800 pt-6"><h2 class="text-sm font-bold text-gray-400 tracking-wider mb-4">DAILY LOG</h2>';
             
             if(state.log.length === 0) {
                 html += '<p class="text-sm text-gray-600 italic">No blocks logged today.</p>';
