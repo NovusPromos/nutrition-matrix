@@ -23,17 +23,17 @@
 
     <script>
         const proteins = [
-            { name: "Pork Fillet (Raw)", qty: "140g" },
-            { name: "Ostrich Mince/Steak", qty: "130g" },
-            { name: "Hake Fillets", qty: "160g" },
-            { name: "Extra Lean Beef Mince 5%", qty: "135g" },
-            { name: "Chicken Breast (Raw)", qty: "130g" },
-            { name: "Lean Beef Steak (Raw)", qty: "125g" },
+            { name: "Chicken Breast (Raw)", qty: "160g" },
+            { name: "Pork Fillet (Raw)", qty: "175g" },
+            { name: "Lean Beef Steak (Raw)", qty: "155g" },
+            { name: "Extra Lean Beef Mince 5%", qty: "170g" },
+            { name: "Ostrich Mince/Steak", qty: "165g" },
+            { name: "Hake Fillets", qty: "200g" },
+            { name: "Chicken Livers (Raw)", qty: "185g" },
+            { name: "Fat-Free Cottage Cheese", qty: "300g tub" },
+            { name: "Tuna in Brine (Drained)", qty: "1.5 Tins (250g)" },
             { name: "Pilchards in Tomato Sauce", qty: "Half tin (200g)" },
-            { name: "Tuna in Brine (Drained)", qty: "1 Tin (170g)" },
-            { name: "Chicken Livers (Raw)", qty: "150g" },
-            { name: "Fat-Free Cottage Cheese", qty: "250g tub" },
-            { name: "3 Whole Eggs", qty: "3 large eggs" }
+            { name: "4 Whole Eggs", qty: "4 large eggs" }
         ];
 
         const carbs = [
@@ -73,7 +73,7 @@
         ];
 
         const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-        const storageKey = 'modular_ledger_v6';
+        const storageKey = 'modular_ledger_v7';
         
         let state = JSON.parse(localStorage.getItem(storageKey));
 
@@ -193,7 +193,7 @@
                 }
                 html += '<div class="flex overflow-x-auto hide-scroll border-b border-gray-800 mb-4">' + daysHtml + '</div>';
 
-                // DAY MATH CALCULATIONS (Targeting 4 Protein Blocks)
+                // DAY MATH CALCULATIONS (Targeting 4 Protein Blocks = 130g Protein)
                 let currentDayLog = state.week[state.activeDay];
                 let pCount = 0; let cCount = 0;
                 for(let i=0; i<currentDayLog.length; i++) {
@@ -201,11 +201,11 @@
                     if(currentDayLog[i].type === 'carb') cCount++;
                 }
 
-                let totalCals = 340 + (pCount * 140) + (cCount * 140);
-                let totalPro = pCount * 26;
+                let totalCals = 340 + (pCount * 175) + (cCount * 140);
+                let totalPro = pCount * 32.5;
 
                 let pColor = pCount === 4 ? 'text-green-400' : (pCount > 4 ? 'text-red-400' : 'text-blue-400');
-                let cColor = cCount === 4 ? 'text-green-400' : (cCount > 4 ? 'text-red-400' : 'text-orange-400');
+                let cColor = cCount <= 3 ? 'text-green-400' : 'text-red-400';
                 let calColor = totalCals <= 1600 ? 'text-white' : 'text-red-500';
 
                 html += '<div class="flex justify-between items-end mb-4">' +
@@ -219,8 +219,8 @@
                         '<div class="text-xs text-gray-500">(' + totalPro + 'g total)</div></div>' +
                         '<div class="bg-gray-800 rounded p-2 text-center border border-gray-700">' +
                         '<div class="text-xs text-gray-400 font-bold mb-1">CARB BLOCKS</div>' +
-                        '<div class="text-xl font-mono font-bold ' + cColor + '">' + cCount + ' / 4</div>' +
-                        '<div class="text-xs text-gray-500">(Max Limit)</div></div></div>' +
+                        '<div class="text-xl font-mono font-bold ' + cColor + '">' + cCount + ' / 3</div>' +
+                        '<div class="text-xs text-gray-500">(Target Max)</div></div></div>' +
                         '<div class="flex space-x-2">' +
                         '<button onclick="setSubTab(\'protein\')" class="flex-1 py-2 text-[10px] font-bold rounded ' + (state.subTab === 'protein' ? 'bg-blue-600 text-white' : 'bg-gray-800 text-gray-400') + ' transition-colors">PROTEIN</button>' +
                         '<button onclick="setSubTab(\'carb\')" class="flex-1 py-2 text-[10px] font-bold rounded ' + (state.subTab === 'carb' ? 'bg-orange-600 text-white' : 'bg-gray-800 text-gray-400') + ' transition-colors">CARBS</button>' +
