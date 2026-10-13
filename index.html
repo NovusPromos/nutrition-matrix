@@ -23,17 +23,17 @@
 
     <script>
         const proteins = [
-            { name: "Pork Fillet (Raw)", qty: "125g" },
-            { name: "Ostrich Mince/Steak", qty: "120g" },
-            { name: "Hake Fillets", qty: "150g" },
-            { name: "Extra Lean Beef Mince 5%", qty: "125g" },
-            { name: "Chicken Breast (Raw)", qty: "115g" },
-            { name: "Lean Beef Steak (Raw)", qty: "110g" },
-            { name: "Pilchards in Tomato Sauce", qty: "150g" },
-            { name: "Tuna in Brine (Drained)", qty: "170g tin" },
+            { name: "Pork Fillet (Raw)", qty: "140g" },
+            { name: "Ostrich Mince/Steak", qty: "130g" },
+            { name: "Hake Fillets", qty: "160g" },
+            { name: "Extra Lean Beef Mince 5%", qty: "135g" },
+            { name: "Chicken Breast (Raw)", qty: "130g" },
+            { name: "Lean Beef Steak (Raw)", qty: "125g" },
+            { name: "Pilchards in Tomato Sauce", qty: "1 Tin (170g-200g)" },
+            { name: "Tuna in Brine (Drained)", qty: "1 Tin (170g)" },
             { name: "Chicken Livers (Raw)", qty: "150g" },
             { name: "Fat-Free Cottage Cheese", qty: "250g tub" },
-            { name: "Eggs (1 Whole + 4 Whites)", qty: "5 total eggs" }
+            { name: "3 Whole Eggs", qty: "3 large eggs" }
         ];
 
         const carbs = [
@@ -73,7 +73,7 @@
         ];
 
         const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-        const storageKey = 'modular_ledger_v4';
+        const storageKey = 'modular_ledger_v5';
         
         let state = JSON.parse(localStorage.getItem(storageKey));
 
@@ -193,7 +193,7 @@
                 }
                 html += '<div class="flex overflow-x-auto hide-scroll border-b border-gray-800 mb-4">' + daysHtml + '</div>';
 
-                // DAY MATH CALCULATIONS
+                // DAY MATH CALCULATIONS (Targeting 4 Protein Blocks)
                 let currentDayLog = state.week[state.activeDay];
                 let pCount = 0; let cCount = 0;
                 for(let i=0; i<currentDayLog.length; i++) {
@@ -204,7 +204,7 @@
                 let totalCals = 340 + (pCount * 140) + (cCount * 140);
                 let totalPro = pCount * 26;
 
-                let pColor = pCount === 5 ? 'text-green-400' : (pCount > 5 ? 'text-red-400' : 'text-blue-400');
+                let pColor = pCount === 4 ? 'text-green-400' : (pCount > 4 ? 'text-red-400' : 'text-blue-400');
                 let cColor = cCount === 4 ? 'text-green-400' : (cCount > 4 ? 'text-red-400' : 'text-orange-400');
                 let calColor = totalCals <= 1600 ? 'text-white' : 'text-red-500';
 
@@ -215,7 +215,7 @@
                         '<div class="grid grid-cols-2 gap-3 mb-4">' +
                         '<div class="bg-gray-800 rounded p-2 text-center border border-gray-700">' +
                         '<div class="text-xs text-gray-400 font-bold mb-1">PROTEIN BLOCKS</div>' +
-                        '<div class="text-xl font-mono font-bold ' + pColor + '">' + pCount + ' / 5</div>' +
+                        '<div class="text-xl font-mono font-bold ' + pColor + '">' + pCount + ' / 4</div>' +
                         '<div class="text-xs text-gray-500">(' + totalPro + 'g total)</div></div>' +
                         '<div class="bg-gray-800 rounded p-2 text-center border border-gray-700">' +
                         '<div class="text-xs text-gray-400 font-bold mb-1">CARB BLOCKS</div>' +
